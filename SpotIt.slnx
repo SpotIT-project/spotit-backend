@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SpotIt.API/SpotIt.API.csproj" />
+    <Project Path="src/SpotIt.Application/SpotIt.Application.csproj" />
+    <Project Path="src/SpotIt.Domain/SpotIt.Domain.csproj" />
+    <Project Path="src/SpotIt.Infrastructure/SpotIt.Infrastructure.csproj" />
+  </Folder>
+</Solution>
