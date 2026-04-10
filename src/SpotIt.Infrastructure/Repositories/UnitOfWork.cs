@@ -13,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<Category> Categories { get; }
     public IRepository<Like> Likes { get; }
     public IRepository<StatusHistory> StatusHistory { get; }
+    public IRepository<RefreshToken> RefreshTokens { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -22,6 +23,7 @@ public class UnitOfWork : IUnitOfWork
         Categories = new Repository<Category>(context);
         Likes = new Repository<Like>(context);
         StatusHistory = new Repository<StatusHistory>(context);
+        RefreshTokens = new Repository<RefreshToken>(context);
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)

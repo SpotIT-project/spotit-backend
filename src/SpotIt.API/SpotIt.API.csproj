@@ -23,4 +23,9 @@
     <ProjectReference Include="..\SpotIt.Application\SpotIt.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Middleware\" />
+  </ItemGroup>
+
 </Project>
