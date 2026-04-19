@@ -9,5 +9,6 @@ public interface IUnitOfWork : IDisposable
     IRepository<Category> Categories { get; }
     IRepository<Like> Likes { get; }
     IRepository<StatusHistory> StatusHistory { get; }
+    IRepository<RefreshToken> RefreshTokens { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

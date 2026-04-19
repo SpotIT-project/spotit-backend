@@ -1,0 +1,6 @@
+@SpotIt.API_HostAddress = http://localhost:5166
+
+GET {{SpotIt.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

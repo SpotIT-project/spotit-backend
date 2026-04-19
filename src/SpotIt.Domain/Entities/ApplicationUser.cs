@@ -14,4 +14,5 @@ public class ApplicationUser : IdentityUser
     public ICollection<Like> Likes { get; set; } = [];
     public ICollection<Comment> Comments { get; set; } = [];
     public ICollection<StatusHistory> StatusChanges { get; set; } = [];
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 }
