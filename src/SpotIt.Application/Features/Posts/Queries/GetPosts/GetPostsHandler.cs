@@ -1,10 +1,10 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using SpotIt.Application.Common;
 using SpotIt.Application.DTOs;
 using SpotIt.Domain.Interfaces;
 
-namespace SpotIt.Application.Features.Posts.Queries;
+namespace SpotIt.Application.Features.Posts.Queries.GetPosts;
 
 public class GetPostsHandler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<GetPostsQuery, PagedResult<PostDto>>
 {
@@ -24,4 +24,3 @@ public class GetPostsHandler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<
         };
     }
 }
-

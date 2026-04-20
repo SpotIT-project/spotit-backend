@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using SpotIt.Application.DTOs;
 using SpotIt.Application.Exceptions;
 using SpotIt.Domain.Entities;
 using SpotIt.Domain.Interfaces;
 
-namespace SpotIt.Application.Features.Posts.Queries;
+namespace SpotIt.Application.Features.Posts.Queries.GetPostById;
 
 public class GetPostByIdHandler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<GetPostByIdQuery, PostDto>
 {

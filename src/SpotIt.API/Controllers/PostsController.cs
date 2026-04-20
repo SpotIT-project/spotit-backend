@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SpotIt.Application.Features.Posts.Commands;
-using SpotIt.Application.Features.Posts.Queries;
+using SpotIt.Application.Features.Posts.Commands.CreatePost;
+using SpotIt.Application.Features.Posts.Queries.GetPosts;
+using SpotIt.Application.Features.Posts.Queries.GetPostById;
 
 namespace SpotIt.API.Controllers;
 

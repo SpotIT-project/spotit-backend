@@ -1,10 +1,10 @@
-﻿using MediatR;
+using MediatR;
 using SpotIt.Application.Interfaces;
 using SpotIt.Domain.Entities;
 using SpotIt.Domain.Enums;
 using SpotIt.Domain.Interfaces;
 
-namespace SpotIt.Application.Features.Posts.Commands;
+namespace SpotIt.Application.Features.Posts.Commands.CreatePost;
 
 public class CreatePostHandler(IUnitOfWork uow, ICurrentUserService currentUser)
     : IRequestHandler<CreatePostCommand, Guid>
@@ -13,7 +13,7 @@ public class CreatePostHandler(IUnitOfWork uow, ICurrentUserService currentUser)
     {
         var newPost = new Post
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             AuthorId = currentUser.UserId,
             Title = request.Title,
             Description = request.Description,
