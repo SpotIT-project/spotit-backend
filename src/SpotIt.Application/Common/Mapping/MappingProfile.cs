@@ -8,6 +8,11 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        CreateMap<Category, CategoryDto>();
+
+        CreateMap<Comment, CommentDto>()
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.UserName));
+
         CreateMap<Post, PostDto>()
             .ForMember(dest => dest.LikesCount, opt => opt.MapFrom(src => src.Likes.Count))
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
