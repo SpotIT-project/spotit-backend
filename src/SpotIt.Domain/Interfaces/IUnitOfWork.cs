@@ -5,7 +5,7 @@ namespace SpotIt.Domain.Interfaces;
 public interface IUnitOfWork : IDisposable
 {
     IPostRepository Posts { get; }
-    IRepository<Comment> Comments { get; }
+    ICommentRepository Comments { get; }
     IRepository<Category> Categories { get; }
     IRepository<Like> Likes { get; }
     IRepository<StatusHistory> StatusHistory { get; }

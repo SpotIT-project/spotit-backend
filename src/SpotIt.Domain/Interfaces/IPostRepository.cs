@@ -12,5 +12,7 @@ public interface IPostRepository : IRepository<Post>
         PostStatus? status,
         DateTime? from,
         DateTime? to,
+        bool sortByPopularity = false,
         CancellationToken ct = default);
+    Task<Post?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct);
 }

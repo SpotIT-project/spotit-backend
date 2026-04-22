@@ -24,3 +24,7 @@ appsettings.Development.json
 ## OS
 .DS_Store
 Thumbs.db
+
+## Learning files — personal, not part of the codebase
+knowledge-tracker.md
+docs/concepts-review.md
