@@ -162,7 +162,7 @@ classDiagram
     }
 
     class RefreshToken {
-        +int Id
+        +Guid Id
         +string Token
         +string UserId
         +DateTime ExpiresAt
@@ -345,27 +345,27 @@ sequenceDiagram
 
 ```mermaid
 flowchart TB
-    subgraph Client["Client (Browser / Angular)"]
-        Angular["Angular SPA"]
+    subgraph Client["Client (Browser / React)"]
+        React["React SPA"]
     end
 
     subgraph API["API Layer — SpotIt.API"]
-        Controllers["Controllers\nAuthController · PostsController"]
+        Controllers["Controllers\nAuthController · PostsController · CommentsController\nCategoriesController · AnalyticsController"]
         Middleware["ExceptionMiddleware\n(outermost — catches all exceptions)"]
         CUS["CurrentUserService\n(reads HttpContext.User claims)"]
     end
 
     subgraph Application["Application Layer — SpotIt.Application"]
-        Handlers["MediatR Handlers\nCreatePost · GetPosts · GetPostById\nUpdateStatus · AddComment · ..."]
+        Handlers["MediatR Handlers\nCreatePost · GetPosts · GetPostById · UpdateStatus\nAddComment · GetComments · LikePost · UnlikePost\nGetCategories · GetPostsByStatus · GetTopCategories"]
         Behaviors["Pipeline Behaviors\nValidationBehavior → LoggingBehavior"]
-        Validators["FluentValidation\nCreatePostValidator · ..."]
+        Validators["FluentValidation\nCreatePostValidator · AddCommentValidator · ..."]
         Mapper["AutoMapper\nMappingProfile"]
         AppInterfaces["Interfaces\nICurrentUserService · IJwtService · IUnitOfWork"]
     end
 
     subgraph Infrastructure["Infrastructure Layer — SpotIt.Infrastructure"]
         DbCtx["AppDbContext\n(EF Core 10)"]
-        Repos["Repositories\nPostRepository · Repository&lt;T&gt;"]
+        Repos["Repositories\nPostRepository · CommentRepository · Repository&lt;T&gt;"]
         UoW["UnitOfWork"]
         JWT["JwtService"]
         Seed["DatabaseSeeder"]
@@ -374,7 +374,7 @@ flowchart TB
     subgraph Domain["Domain Layer — SpotIt.Domain"]
         Entities["Entities\nPost · ApplicationUser · Category\nComment · Like · StatusHistory · RefreshToken"]
         Enums["Enums — PostStatus"]
-        DomainIfaces["Interfaces\nIRepository&lt;T&gt; · IPostRepository · IUnitOfWork"]
+        DomainIfaces["Interfaces\nIRepository&lt;T&gt; · IPostRepository · ICommentRepository · IUnitOfWork"]
     end
 
     subgraph External["External"]
@@ -382,7 +382,7 @@ flowchart TB
         Identity["ASP.NET Identity"]
     end
 
-    Angular <-->|"HTTP (cookies)"| Controllers
+    React <-->|"HTTP (cookies)"| Controllers
     Controllers --> Middleware
     Controllers --> Handlers
     CUS -->|"implements"| AppInterfaces
@@ -466,7 +466,7 @@ erDiagram
     }
 
     RefreshToken {
-        int Id PK
+        uuid Id PK
         string Token
         string UserId FK
         timestamptz ExpiresAt
@@ -513,117 +513,3 @@ stateDiagram-v2
     end note
 ```
 
----
-
-## 7. UI Wireframes
-
-> Low-fidelity ASCII wireframes. For high-fidelity: Figma / draw.io.
-
-### Login Page
-```
-┌─────────────────────────────────────┐
-│              SpotIt 📍              │
-│      Report. Track. Improve.        │
-│                                     │
-│  ┌───────────────────────────────┐  │
-│  │ Email                         │  │
-│  └───────────────────────────────┘  │
-│  ┌───────────────────────────────┐  │
-│  │ Password                      │  │
-│  └───────────────────────────────┘  │
-│                                     │
-│  [        Login         ]           │
-│                                     │
-│  Don't have an account? Register    │
-└─────────────────────────────────────┘
-```
-
----
-
-### Home Feed (Citizen)
-```
-┌─────────────────────────────────────────────────────┐
-│  SpotIt 📍          [Search...]    [+ New Post]  👤 │
-├──────────────┬──────────────────────────────────────┤
-│  Filters     │  Posts (42 total)          ↕ Sort by │
-│              │                                       │
-│  Category    │  ┌─────────────────────────────────┐ │
-│  [All     ▼] │  │ 🔴 Pothole on Str. Republicii   │ │
-│              │  │ Infrastructure · Pending          │ │
-│  Status      │  │ "Large pothole near..."           │ │
-│  [All     ▼] │  │ ❤️ 12  💬 3  · 2h ago            │ │
-│              │  └─────────────────────────────────┘ │
-│  Date from   │                                       │
-│  [        ]  │  ┌─────────────────────────────────┐ │
-│              │  │ 🟡 Broken street light on Calea  │ │
-│  Date to     │  │ Safety · UnderReview              │ │
-│  [        ]  │  │ "The light has been out..."       │ │
-│              │  │ ❤️ 8   💬 1  · 1d ago             │ │
-│  [Apply]     │  └─────────────────────────────────┘ │
-│              │                                       │
-│              │  ← 1  2  3  4  5 →                   │
-└──────────────┴──────────────────────────────────────┘
-```
-
----
-
-### Post Detail Page
-```
-┌───────────────────────────────────────────────────┐
-│  ← Back to feed                                   │
-│                                                   │
-│  Pothole on Str. Republicii                       │
-│  Infrastructure · 🔴 Pending  · April 21, 2026   │
-│  Posted by: Sava Alexandru                        │
-│                                                   │
-│  Large pothole near the main intersection         │
-│  causing damage to vehicles and danger to         │
-│  cyclists. Needs urgent repair.                   │
-│                                                   │
-│  [❤️ Like (12)]                                   │
-│                                                   │
-│  ── Status History ──────────────────────────── │
-│  Apr 21 · Created as Pending                      │
-│                                                   │
-│  ── Comments (3) ───────────────────────────── │
-│  🏛️ [OFFICIAL] City Hall — Apr 22                 │
-│     "We have logged this and will inspect."       │
-│                                                   │
-│  👤 Ion Popescu — Apr 21                          │
-│     "This needs fixing urgently!"                 │
-│                                                   │
-│  ┌─────────────────────────────────────────────┐ │
-│  │ Add a comment...                            │ │
-│  └─────────────────────────────────────────────┘ │
-│  [Submit Comment]                                 │
-└───────────────────────────────────────────────────┘
-```
-
----
-
-### Create Post Modal
-```
-┌─────────────────────────────────────┐
-│  Report an Issue               [✕]  │
-│                                     │
-│  Title *                            │
-│  ┌───────────────────────────────┐  │
-│  │ Pothole on Str. Republicii    │  │
-│  └───────────────────────────────┘  │
-│                                     │
-│  Category *                         │
-│  ┌───────────────────────────────┐  │
-│  │ Infrastructure              ▼ │  │
-│  └───────────────────────────────┘  │
-│                                     │
-│  Description *                      │
-│  ┌───────────────────────────────┐  │
-│  │                               │  │
-│  │                               │  │
-│  └───────────────────────────────┘  │
-│                                     │
-│  ☐ Post anonymously                 │
-│                                     │
-│  [Cancel]         [Submit Report]   │
-└─────────────────────────────────────┘
-```

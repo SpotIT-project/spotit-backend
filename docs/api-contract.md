@@ -167,7 +167,7 @@ Create a new post. `authorId` is taken from the JWT — never sent by the client
 
 ---
 
-### PATCH /posts/{id}/status 🔜
+### PATCH /posts/{id}/status ✅
 Update the status of a post. Roles: `CityHallEmployee`, `Admin`.
 
 **Request body**
@@ -189,7 +189,7 @@ Update the status of a post. Roles: `CityHallEmployee`, `Admin`.
 
 ---
 
-### POST /posts/{id}/likes 🔜
+### POST /posts/{id}/likes ✅
 Like a post. Duplicate likes are rejected at DB level.
 
 No request body.
@@ -199,7 +199,7 @@ No request body.
 
 ---
 
-### DELETE /posts/{id}/likes 🔜
+### DELETE /posts/{id}/likes ✅
 Remove a like from a post.
 
 No request body.
@@ -211,7 +211,7 @@ No request body.
 
 ## Comments
 
-### GET /posts/{id}/comments 🔜
+### GET /posts/{id}/comments ✅
 Get comments for a post, ordered by date ascending.
 
 **Response 200**
@@ -231,7 +231,7 @@ Get comments for a post, ordered by date ascending.
 
 ---
 
-### POST /posts/{id}/comments 🔜
+### POST /posts/{id}/comments ✅
 Add a comment. Roles: any authenticated user. Set `isOfficial: true` only for Employees/Admins.
 
 **Request body**
@@ -253,7 +253,7 @@ Add a comment. Roles: any authenticated user. Set `isOfficial: true` only for Em
 
 ## Categories
 
-### GET /categories 🔜
+### GET /categories ✅
 Get all categories. Used to populate dropdowns in the frontend.
 
 No auth required (public endpoint).
@@ -273,7 +273,7 @@ No auth required (public endpoint).
 
 ## Analytics (Admin only)
 
-### GET /admin/analytics/by-status 🔜
+### GET /admin/analytics/by-status ✅
 Count of posts grouped by status.
 
 **Response 200**
@@ -287,7 +287,7 @@ Count of posts grouped by status.
 
 ---
 
-### GET /admin/analytics/top-categories 🔜
+### GET /admin/analytics/top-categories ✅
 Top 5 categories by post count.
 
 **Response 200**
