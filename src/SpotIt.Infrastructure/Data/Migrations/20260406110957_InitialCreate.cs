@@ -389,8 +389,7 @@ namespace SpotIt.Infrastructure.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "ix_posts_title_description",
                 table: "posts",
-                columns: new[] { "title", "description" })
-                .Annotation("Npgsql:IndexMethod", "GIN");
+                columns: new[] { "title", "description" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_status_histories_changed_by_user_id",

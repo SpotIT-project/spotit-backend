@@ -23,7 +23,6 @@ namespace SpotIt.Infrastructure.Data.Configurations
 
             builder.HasIndex(x => x.CategoryId);
             builder.HasIndex(x => x.Status);
-            builder.HasIndex(x=> new {x.Title, x.Description}).HasMethod("GIN");
 
         }
     }
