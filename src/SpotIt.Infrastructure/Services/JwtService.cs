@@ -43,7 +43,7 @@ public class JwtService : IJwtService
             audience: _configuration["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(
-                double.Parse(_configuration["Jwt:ExpirityMinutes"]!)),
+                double.Parse(_configuration["Jwt:ExpiryMinutes"]!)),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -65,7 +65,7 @@ public class JwtService : IJwtService
         {
             ValidateIssuerSigningKey=true,
             IssuerSigningKey=new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt: SecretKey"]!)),
+                Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!)),
             ValidateIssuer=true,
             ValidIssuer = _configuration["Jwt:Issuer"],
             ValidateAudience=true,
