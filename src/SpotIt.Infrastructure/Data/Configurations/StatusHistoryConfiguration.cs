@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SpotIt.Domain.Entities;
 using System;
@@ -13,13 +13,9 @@ namespace SpotIt.Infrastructure.Data.Configurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(s => s.OldStatus)
-                 .HasColumnType("post_status")
-                 .HasConversion<string>();
+            builder.Property(s => s.OldStatus).HasColumnType("character varying(50)").HasConversion<string>();
 
-            builder.Property(s => s.NewStatus)
-                   .HasColumnType("post_status")
-                   .HasConversion<string>();
+            builder.Property(s => s.NewStatus).HasColumnType("character varying(50)").HasConversion<string>();
 
             builder.Property(s => s.Note)
                    .HasMaxLength(1000);

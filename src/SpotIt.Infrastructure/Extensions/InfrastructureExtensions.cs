@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,19 +11,26 @@ using SpotIt.Domain.Interfaces;
 using SpotIt.Infrastructure.Data;
 using SpotIt.Infrastructure.Repositories;
 using SpotIt.Infrastructure.Services;
-using System;
-using System.Collections.Generic;
 using System.Text;
+using Npgsql;
+
 namespace SpotIt.Infrastructure.Extensions;
 
 public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure (this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options =>
-        options
-        .UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
-        .UseSnakeCaseNamingConvention());
+        services.AddSingleton<NpgsqlDataSource>(sp =>
+        {
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("DefaultConnection"));
+            return dataSourceBuilder.Build();
+        });
+
+        services.AddDbContext<AppDbContext>((sp, options) =>
+        {
+            var dataSource = sp.GetRequiredService<NpgsqlDataSource>();
+            options.UseNpgsql(dataSource).UseSnakeCaseNamingConvention();
+        });
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IJwtService,JwtService>();
