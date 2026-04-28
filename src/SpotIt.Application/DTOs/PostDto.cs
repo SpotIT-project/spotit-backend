@@ -15,4 +15,5 @@ public record PostDto
     public int LikesCount { get; init; }
     public string? AuthorId { get; init; }
     public string? AuthorName { get; init; }
+    public string? PhotoUrl { get; init; }
 }
