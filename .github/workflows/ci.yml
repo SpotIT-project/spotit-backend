@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [Sava]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: spotit_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Build
+        run: dotnet build --configuration Release --no-incremental
+
+      - name: Unit tests
+        run: dotnet test tests/SpotIt.UnitTests --no-build --configuration Release
+
+      - name: Integration tests
+        run: dotnet test tests/SpotIt.IntegrationTests --no-build --configuration Release
