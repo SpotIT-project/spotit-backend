@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,8 +12,7 @@ namespace SpotIt.Infrastructure.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:Enum:post_status", "pending,under_review,in_progress,resolved,rejected");
+            // Postgres enum removed to simplify migrations and test setup.
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
@@ -194,7 +193,7 @@ namespace SpotIt.Infrastructure.Data.Migrations
                     title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
                     category_id = table.Column<int>(type: "integer", nullable: false),
-                    status = table.Column<string>(type: "post_status", nullable: false),
+                    status = table.Column<string>(type: "character varying(50)", nullable: false),
                     author_id = table.Column<string>(type: "text", nullable: false),
                     is_anonymous = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
@@ -280,8 +279,8 @@ namespace SpotIt.Infrastructure.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     post_id = table.Column<Guid>(type: "uuid", nullable: false),
                     changed_by_user_id = table.Column<string>(type: "text", nullable: false),
-                    old_status = table.Column<string>(type: "post_status", nullable: false),
-                    new_status = table.Column<string>(type: "post_status", nullable: false),
+                    old_status = table.Column<string>(type: "character varying(50)", nullable: false),
+                    new_status = table.Column<string>(type: "character varying(50)", nullable: false),
                     note = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     changed_at = table.Column<DateTime>(type: "timestamptz", nullable: false)
                 },

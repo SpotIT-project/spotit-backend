@@ -5,4 +5,8 @@
     <Project Path="src/SpotIt.Domain/SpotIt.Domain.csproj" />
     <Project Path="src/SpotIt.Infrastructure/SpotIt.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SpotIt.IntegrationTests/SpotIt.IntegrationTests.csproj" />
+    <Project Path="tests/SpotIt.UnitTests/SpotIt.UnitTests.csproj" />
+  </Folder>
 </Solution>

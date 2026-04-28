@@ -1,29 +1,37 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using SpotIt.Application.Interfaces;
 using SpotIt.Domain.Entities;
+using SpotIt.Domain.Enums;
 using SpotIt.Domain.Interfaces;
 using SpotIt.Infrastructure.Data;
 using SpotIt.Infrastructure.Repositories;
 using SpotIt.Infrastructure.Services;
-using System;
-using System.Collections.Generic;
 using System.Text;
+
 namespace SpotIt.Infrastructure.Extensions;
 
 public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure (this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options =>
-        options
-        .UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
-        .UseSnakeCaseNamingConvention());
+        services.AddSingleton<NpgsqlDataSource>(sp =>
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+            var b = new NpgsqlDataSourceBuilder(config.GetConnectionString("DefaultConnection")!);
+            return b.Build();
+        });
+
+        services.AddDbContext<AppDbContext>((sp, options) =>
+        {
+            var dataSource = sp.GetRequiredService<NpgsqlDataSource>();
+            options.UseNpgsql(dataSource).UseSnakeCaseNamingConvention();
+        });
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IJwtService,JwtService>();
