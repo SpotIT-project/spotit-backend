@@ -43,3 +43,5 @@ app.MapControllers();
 
 await DatabaseSeeder.SeedAsync(app.Services);
 app.Run();
+
+public partial class Program {}

@@ -29,7 +29,7 @@ public class ExceptionMiddleware(RequestDelegate next)
             else
             {
                 context.Response.StatusCode = 500;
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = ex.Message }));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = ex.Message, inner = ex.InnerException?.Message, inner2 = ex.InnerException?.InnerException?.Message }));
             }
 
 
