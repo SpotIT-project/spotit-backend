@@ -13,7 +13,7 @@ public class GetPostsHandler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<
         var (items, totalCount) = await uow.Posts.GetPagedAsync(
             request.Page, request.PageSize, request.CategoryId,
             request.Status, request.DateFrom, request.DateTo,
-            request.SortByPopularity, ct);
+            request.SortByPopularity, request.Search, ct);
 
         return new PagedResult<PostDto>
         {
