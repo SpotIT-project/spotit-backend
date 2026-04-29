@@ -25,6 +25,14 @@ appsettings.Development.json
 .DS_Store
 Thumbs.db
 
+## Git worktrees
+.worktrees/
+
 ## Learning files — personal, not part of the codebase
 knowledge-tracker.md
 docs/concepts-review.md
+
+##Claude
+.claude
+CLAUDE.md
+docs/superpowers

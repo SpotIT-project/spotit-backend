@@ -12,8 +12,8 @@ using SpotIt.Infrastructure.Data;
 namespace SpotIt.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260410084711_AddRefreshToken")]
-    partial class AddRefreshToken
+    [Migration("20260423092105_RemovePostSearchIndex")]
+    partial class RemovePostSearchIndex
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -462,11 +462,6 @@ namespace SpotIt.Infrastructure.Data.Migrations
 
                     b.HasIndex("Status")
                         .HasDatabaseName("ix_posts_status");
-
-                    b.HasIndex("Title", "Description")
-                        .HasDatabaseName("ix_posts_title_description");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Title", "Description"), "GIN");
 
                     b.ToTable("posts", (string)null);
                 });

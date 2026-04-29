@@ -11,6 +11,7 @@ public class Post
     public PostStatus Status { get; set; } = PostStatus.Pending;
     public string AuthorId { get; set; } = string.Empty;
     public bool IsAnonymous { get; set; }
+    public string? PhotoUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

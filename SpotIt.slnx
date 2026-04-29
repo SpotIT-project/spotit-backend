@@ -1,8 +1,18 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".env" />
+    <File Path="docker-compose.prod.yml" />
+    <File Path="docker-compose.yml" />
+    <File Path="Dockerfile." />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/SpotIt.API/SpotIt.API.csproj" />
     <Project Path="src/SpotIt.Application/SpotIt.Application.csproj" />
     <Project Path="src/SpotIt.Domain/SpotIt.Domain.csproj" />
     <Project Path="src/SpotIt.Infrastructure/SpotIt.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SpotIt.IntegrationTests/SpotIt.IntegrationTests.csproj" />
+    <Project Path="tests/SpotIt.UnitTests/SpotIt.UnitTests.csproj" />
   </Folder>
 </Solution>
