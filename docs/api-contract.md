@@ -60,6 +60,24 @@ Login and receive HttpOnly cookies (`accessToken`, `refreshToken`).
 
 ---
 
+### GET /auth/me ✅
+Get the profile of the currently authenticated user. Requires a valid `accessToken` cookie.
+
+**Response 200**
+```json
+{
+  "id": "3fa85f64-...",
+  "email": "sava@example.com",
+  "fullName": "Sava Alexandru",
+  "city": "Oradea",
+  "role": "Citizen"
+}
+```
+
+**Response 401** — Missing or expired token
+
+---
+
 ### POST /auth/refresh ✅
 Silently rotate tokens using the `refreshToken` cookie.  
 No request body. Reads cookies automatically.
@@ -100,6 +118,7 @@ Get a paginated, filtered list of posts.
 | dateFrom | datetime | no | ISO 8601 — filter by created date |
 | dateTo | datetime | no | ISO 8601 |
 | sortByPopularity | bool | no | `true` = sort by likes desc; `false` = sort by date desc |
+| search | string | no | Case-insensitive text search on title and description |
 
 **Response 200**
 ```json
@@ -116,6 +135,7 @@ Get a paginated, filtered list of posts.
       "authorId": "user-guid",
       "authorName": "Sava Alexandru",
       "likesCount": 12,
+      "photoUrl": "/uploads/3fa85f64-....jpg",
       "createdAt": "2026-04-21T10:00:00Z"
     }
   ],
@@ -167,6 +187,18 @@ Create a new post. `authorId` is taken from the JWT — never sent by the client
 
 ---
 
+### DELETE /posts/{id} ✅
+Delete a post. Only the post author can delete their own post.
+
+No request body.
+
+**Response 204** — No content  
+**Response 401** — Not authenticated  
+**Response 403** — Caller is not the post author  
+**Response 404** — Post not found
+
+---
+
 ### PATCH /posts/{id}/status ✅
 Update the status of a post. Roles: `CityHallEmployee`, `Admin`.
 
@@ -185,6 +217,30 @@ Update the status of a post. Roles: `CityHallEmployee`, `Admin`.
 **Response 204** — No content  
 **Response 400** — Validation error  
 **Response 403** — Caller is not Employee or Admin  
+**Response 404** — Post not found
+
+---
+
+### POST /posts/{id}/photo ✅
+Upload or replace the photo for a post. Only the post author can do this.
+
+**Content-Type:** `multipart/form-data`
+
+| Field | Type | Required |
+|---|---|---|
+| photo | file | yes |
+
+**Validation rules**
+- Allowed extensions: `.jpg`, `.jpeg`, `.png`, `.webp`
+- Max size: 5 MB
+
+**Response 200**
+```json
+{ "url": "/uploads/3fa85f64-....jpg" }
+```
+
+**Response 400** — Validation error (wrong type, too large)  
+**Response 403** — Caller is not the post author  
 **Response 404** — Post not found
 
 ---
@@ -316,6 +372,7 @@ Top 5 categories by post count.
 |---|---|
 | 400 | Validation failure — body: `{ "errors": ["..."] }` |
 | 401 | Missing or expired access token |
-| 403 | Authenticated but wrong role |
+| 403 | Authenticated but wrong role, or not the resource owner |
 | 404 | Resource not found — body: `{ "error": "..." }` |
+| 409 | Conflict — e.g. duplicate like — body: `{ "error": "..." }` |
 | 500 | Unhandled server error — body: `{ "error": "..." }` |

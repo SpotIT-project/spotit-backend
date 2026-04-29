@@ -28,6 +28,7 @@ public class PostRepository : Repository<Post>, IPostRepository
         DateTime? from,
         DateTime? to,
         bool sortByPopularity = false,
+        string? search = null,
         CancellationToken ct = default)
     {
         var query = _context.Posts
@@ -47,6 +48,14 @@ public class PostRepository : Repository<Post>, IPostRepository
 
         if (to.HasValue)
             query = query.Where(p => p.CreatedAt <= to.Value);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{search}%";
+            query = query.Where(p =>
+                EF.Functions.ILike(p.Title, pattern) ||
+                EF.Functions.ILike(p.Description, pattern));
+        }
 
         var total = await query.CountAsync(ct);
 

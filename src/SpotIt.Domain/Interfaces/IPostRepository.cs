@@ -13,6 +13,7 @@ public interface IPostRepository : IRepository<Post>
         DateTime? from,
         DateTime? to,
         bool sortByPopularity = false,
+        string? search = null,
         CancellationToken ct = default);
     Task<Post?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct);
 }
