@@ -34,6 +34,7 @@ public static class InfrastructureExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IJwtService,JwtService>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
         return services;
     }
