@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using SpotIt.Application.DTOs;
@@ -131,6 +133,19 @@ public class AuthController:ControllerBase
         SetTokenCookies(newAccessToken, newRefreshToken);
 
         return Ok(new { message = "Token refreshed" });
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        var userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByIdAsync(userId!);
+        if (user == null) return Unauthorized();
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault() ?? "Citizen";
+        return Ok(new UserProfileDto(user.Id, user.Email!, user.FullName, user.City, role));
     }
 
     [HttpPost("logout")]

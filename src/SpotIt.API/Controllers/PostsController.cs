@@ -8,6 +8,7 @@ using SpotIt.Application.Features.Posts.Queries.GetPostById;
 using SpotIt.Domain.Enums;
 using SpotIt.Application.Features.Likes.Commands.LikePost;
 using SpotIt.Application.Features.Likes.Commands.UnlikePost;
+using SpotIt.Application.Features.Posts.Commands.DeletePost;
 using SpotIt.Application.Features.Posts.Commands.UploadPostPhoto;
 
 namespace SpotIt.API.Controllers;
@@ -65,8 +66,16 @@ public class PostsController : ControllerBase
         return NoContent();
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    {
+        await _mediator.Send(new DeletePostCommand(id));
+        return NoContent();
+    }
+
     [HttpPost("{id}/photo")]
-    public async Task<IActionResult> UploadPhoto([FromRoute] Guid id, IFormFile photo)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadPhoto([FromRoute] Guid id, [FromForm] IFormFile photo)
     {
         var url = await _mediator.Send(new UploadPostPhotoCommand(id, photo));
         return Ok(new { url });

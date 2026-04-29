@@ -45,7 +45,7 @@ public class GetPostsHandlerTests
         };
 
         // The repository returns a tuple: (Items, TotalCount)
-        _uow.Posts.GetPagedAsync(1, 10, null, null, null, null, false, Arg.Any<CancellationToken>())
+        _uow.Posts.GetPagedAsync(1, 10, null, null, null, null, false, null, Arg.Any<CancellationToken>())
             .Returns((posts.AsEnumerable(), 5));
 
         _mapper.Map<IEnumerable<PostDto>>(Arg.Any<IEnumerable<Post>>())

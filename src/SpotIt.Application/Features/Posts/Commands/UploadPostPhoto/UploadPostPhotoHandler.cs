@@ -6,13 +6,16 @@ using SpotIt.Domain.Interfaces;
 
 namespace SpotIt.Application.Features.Posts.Commands.UploadPostPhoto;
 
-public class UploadPostPhotoHandler(IUnitOfWork uow, IFileStorageService fileStorage)
+public class UploadPostPhotoHandler(IUnitOfWork uow, IFileStorageService fileStorage, ICurrentUserService currentUser)
     : IRequestHandler<UploadPostPhotoCommand, string>
 {
     public async Task<string> Handle(UploadPostPhotoCommand request, CancellationToken ct)
     {
         var post = await uow.Posts.GetByIdAsync(request.PostId, ct)
             ?? throw new NotFoundException(nameof(Post), request.PostId);
+
+        if (post.AuthorId != currentUser.UserId)
+            throw new UnauthorizedAccessException("You can only upload photos to your own posts.");
 
         if (post.PhotoUrl is not null)
             fileStorage.Delete(post.PhotoUrl);
