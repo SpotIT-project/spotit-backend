@@ -43,7 +43,7 @@ public class LikeTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task LikePost_AlreadyLiked_Returns500()
+    public async Task LikePost_AlreadyLiked_Returns409()
     {
         // Arrange -> Like it once
         var userId = await _factory.CreateTestUserAsync("liker@test.com", "Test123!", "Citizen");
@@ -61,8 +61,8 @@ public class LikeTests : IAsyncLifetime
         // Act -> Try to like the SAME post AGAIN
         var exceptionResponse = await client.PostAsync($"/api/posts/{postId}/likes", null);
 
-        // Assert -> The ExceptionMiddleware catches InvalidOperationException and returns 500
-        exceptionResponse.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        // Assert -> The ExceptionMiddleware catches InvalidOperationException and returns 409 Conflict
+        exceptionResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
     [Fact]
