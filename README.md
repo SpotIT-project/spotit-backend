@@ -71,15 +71,32 @@ Jwt__Audience=SpotIt.Client
 Jwt__ExpiryMinutes=15
 ```
 
-### 3. Configure user secrets (alternative to .env for local dev)
+### 3. Supply secrets for local development
+
+`appsettings.json` is committed with empty values — never put real credentials there.  
+Use **one** of the two approaches below:
+
+**Option A — `appsettings.Development.json`** (gitignored, simplest)
+
+Create `src/SpotIt.API/appsettings.Development.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=spotitdb;Username=spotit;Password=yourpassword"
+  },
+  "Jwt": {
+    "SecretKey": "your-secret-key-at-least-32-characters-long"
+  }
+}
+```
+
+**Option B — .NET User Secrets** (isolated per machine)
 
 ```bash
 cd src/SpotIt.API
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=spotitdb;Username=spotit;Password=yourpassword"
 dotnet user-secrets set "Jwt:SecretKey" "your-secret-key-at-least-32-characters-long"
-dotnet user-secrets set "Jwt:Issuer" "SpotIt.API"
-dotnet user-secrets set "Jwt:Audience" "SpotIt.Client"
-dotnet user-secrets set "Jwt:ExpiryMinutes" "15"
 ```
 
 ### 4. Run the API
