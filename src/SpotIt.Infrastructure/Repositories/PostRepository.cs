@@ -71,5 +71,24 @@ public class PostRepository : Repository<Post>, IPostRepository
         return (items, total);
     }
 
-    
+
+    public async Task<Dictionary<PostStatus, int>> GetStatusCountsAsync(CancellationToken ct = default)
+    {
+        return await _context.Posts
+            .GroupBy(p => p.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Status, x => x.Count, ct);
+    }
+
+    public async Task<List<(string CategoryName, int PostCount)>> GetTopCategoriesAsync(int top, CancellationToken ct = default)
+    {
+        var data = await _context.Posts
+            .GroupBy(p => p.Category!.Name)
+            .Select(g => new { CategoryName = g.Key, PostCount = g.Count() })
+            .OrderByDescending(g => g.PostCount)
+            .Take(top)
+            .ToListAsync(ct);
+
+        return data.Select(d => (d.CategoryName, d.PostCount)).ToList();
+    }
 }

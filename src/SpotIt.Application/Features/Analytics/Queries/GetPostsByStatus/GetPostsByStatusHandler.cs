@@ -9,10 +9,7 @@ public class GetPostsByStatusHandler(IUnitOfWork uow)
 {
     public async Task<IEnumerable<PostsByStatusDto>> Handle(GetPostsByStatusQuery request, CancellationToken ct)
     {
-        var posts = await uow.Posts.GetAllAsync(ct);
-
-        return posts
-            .GroupBy(p => p.Status)
-            .Select(g => new PostsByStatusDto { Status = g.Key, Count = g.Count() });
+        var counts = await uow.Posts.GetStatusCountsAsync(ct);
+        return counts.Select(kvp => new PostsByStatusDto { Status = kvp.Key, Count = kvp.Value });
     }
 }

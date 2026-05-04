@@ -16,4 +16,6 @@ public interface IPostRepository : IRepository<Post>
         string? search = null,
         CancellationToken ct = default);
     Task<Post?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct);
+    Task<Dictionary<PostStatus, int>> GetStatusCountsAsync(CancellationToken ct = default);
+    Task<List<(string CategoryName, int PostCount)>> GetTopCategoriesAsync(int top, CancellationToken ct = default);
 }

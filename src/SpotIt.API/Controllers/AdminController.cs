@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpotIt.Application.Authorization;
-using SpotIt.Domain.Entities;
 using System.Security.Claims;
 
 namespace SpotIt.API.Controllers;
@@ -10,9 +9,7 @@ namespace SpotIt.API.Controllers;
 [ApiController]
 [Route("api/admin")]
 [Authorize(Policy = Permissions.Roles.Manage)]
-public class AdminController(
-    RoleManager<IdentityRole>    roleManager,
-    UserManager<ApplicationUser> userManager) : ControllerBase
+public class AdminController(RoleManager<IdentityRole> roleManager) : ControllerBase
 {
     private static readonly string[] BuiltInRoles = ["Admin", "CityHallEmployee", "Citizen"];
 
