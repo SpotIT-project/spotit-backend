@@ -10,6 +10,7 @@ using SpotIt.Application.Features.Likes.Commands.LikePost;
 using SpotIt.Application.Features.Likes.Commands.UnlikePost;
 using SpotIt.Application.Features.Posts.Commands.DeletePost;
 using SpotIt.Application.Features.Posts.Commands.UploadPostPhoto;
+using SpotIt.Application.Authorization;
 
 namespace SpotIt.API.Controllers;
 
@@ -46,7 +47,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpPatch("{id}/status")]
-    [Authorize(Roles = "CityHallEmployee,Admin")]
+    [Authorize(Policy = Permissions.Posts.UpdateStatus)]
     public async Task<IActionResult> UpdateStatus([FromRoute] Guid id, [FromBody] UpdateStatusBody body)
     {
         await _mediator.Send(new UpdatePostStatusCommand(id, body.NewStatus, body.Note));

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using SpotIt.Application.Authorization;
 using SpotIt.Application.Interfaces;
 using SpotIt.Domain.Entities;
 using SpotIt.Domain.Enums;
@@ -71,7 +72,14 @@ public static class InfrastructureExtensions
             };
         });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            foreach (var permission in Permissions.GetAll())
+            {
+                options.AddPolicy(permission, policy =>
+                    policy.RequireClaim("permission", permission));
+            }
+        });
         return services;
     }
 

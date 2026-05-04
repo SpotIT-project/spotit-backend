@@ -9,7 +9,7 @@ public static class AuthHelper
 {
     private const string SecretKey = "test-secret-key-must-be-at-least-32-chars-long";
 
-    public static string GenerateToken(string userId, string email, string role)
+    public static string GenerateToken(string userId, string email, string role, params string[] permissions)
     {
         var claims = new List<Claim>
         {
@@ -20,6 +20,9 @@ public static class AuthHelper
             new("city", "Test City"),
             new(ClaimTypes.Role, role)
         };
+
+        foreach (var permission in permissions)
+            claims.Add(new Claim("permission", permission));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -34,9 +37,9 @@ public static class AuthHelper
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public static HttpClient AsRole(this HttpClient client, string userId, string email, string role)
+    public static HttpClient AsRole(this HttpClient client, string userId, string email, string role, params string[] permissions)
     {
-        var token = GenerateToken(userId, email, role);
+        var token = GenerateToken(userId, email, role, permissions);
         client.DefaultRequestHeaders.Add("Cookie", $"accessToken={token}");
         return client;
     }

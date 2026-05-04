@@ -8,7 +8,7 @@ namespace SpotIt.Application.Interfaces;
 
 public interface IJwtService
 {
-    string GenerateAccesToken(ApplicationUser user, IList<string> roles);
+    string GenerateAccessToken(ApplicationUser user, IList<string> roles, IList<Claim> permissionClaims);
     string GenerateRefreshToken();
     ClaimsPrincipal?GetPrincipalFromExpiredToken(string token);
 }

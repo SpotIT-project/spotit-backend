@@ -16,7 +16,7 @@ namespace SpotIt.IntegrationTests.Infrastructure;
 public class SpotItWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private const string ConnectionString =
-        "Host=localhost;Port=5433;Database=spotit_test;Username=postgres;Password=postgres";
+        "Host=localhost;Port=5432;Database=spotit_test;Username=postgres;Password=postgres";
 
     private Respawner _respawner = default!;
 

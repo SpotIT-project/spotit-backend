@@ -18,17 +18,20 @@ public class AuthController:ControllerBase
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IJwtService _jwtService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly RoleManager<IdentityRole> _roleManager;
 
     public AuthController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IJwtService jwtService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtService = jwtService;
         _unitOfWork = unitOfWork;
+        _roleManager = roleManager;
     }
 
     [HttpPost("register")]
@@ -64,7 +67,8 @@ public class AuthController:ControllerBase
             return Unauthorized("Invalid credentials");
 
         var roles= await _userManager.GetRolesAsync(user);
-        var accessToken= _jwtService.GenerateAccesToken(user, roles);
+        var permissionClaims = await LoadPermissionClaimsAsync(roles);
+        var accessToken= _jwtService.GenerateAccessToken(user, roles, permissionClaims);
         var refreshToken = _jwtService.GenerateRefreshToken();
 
         var refreshTokenEntity = new RefreshToken
@@ -116,7 +120,8 @@ public class AuthController:ControllerBase
         if (user == null) return Unauthorized();
 
         var roles = await _userManager.GetRolesAsync(user);
-        var newAccessToken=_jwtService.GenerateAccesToken(user, roles);
+        var permissionClaims = await LoadPermissionClaimsAsync(roles);
+        var newAccessToken = _jwtService.GenerateAccessToken(user, roles, permissionClaims);
         var newRefreshToken = _jwtService.GenerateRefreshToken();
 
         var newRefreshTokenEntity = new RefreshToken
@@ -154,6 +159,22 @@ public class AuthController:ControllerBase
         Response.Cookies.Delete("accessToken");
         Response.Cookies.Delete("refreshToken");
         return Ok(new { message = "Logged out" });
+    }
+
+    private async Task<IList<Claim>> LoadPermissionClaimsAsync(IList<string> roles)
+    {
+        var allClaims = new List<Claim>();
+
+        foreach (var roleName in roles)
+        {
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role is null) continue;
+            var claims = await _roleManager.GetClaimsAsync(role);
+            allClaims.AddRange(claims);
+        }
+
+        return allClaims.DistinctBy(c=>c.Value).ToList();
+        
     }
 
     private void SetTokenCookies(string accessToken, string refreshToken)

@@ -20,7 +20,7 @@ public class JwtService : IJwtService
     {
         _configuration = configuration;
     }
-    public string GenerateAccesToken(ApplicationUser user, IList<string> roles)
+    public string GenerateAccessToken(ApplicationUser user, IList<string> roles, IList<Claim> permissionClaims)
     {
         var claims=new List<Claim>
         {
@@ -30,8 +30,11 @@ public class JwtService : IJwtService
              new("fullName", user.FullName),
              new("city", user.City)
         };
-        foreach (var role in roles)   
+        foreach (var role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
+
+        foreach (var claim in permissionClaims)
+            claims.Add(claim);
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
