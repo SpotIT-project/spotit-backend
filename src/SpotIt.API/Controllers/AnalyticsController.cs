@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpotIt.Application.Features.Analytics.Queries.GetPostsByStatus;
 using SpotIt.Application.Features.Analytics.Queries.GetTopCategories;
+using SpotIt.Application.Authorization;
 
 namespace SpotIt.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = Permissions.Analytics.View)]
 public class AnalyticsController(IMediator mediator) : ControllerBase
 {
     [HttpGet("by-status")]

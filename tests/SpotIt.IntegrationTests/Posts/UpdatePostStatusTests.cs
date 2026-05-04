@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using SpotIt.Application.DTOs;
 using SpotIt.Domain.Enums;
+using SpotIt.Application.Authorization;
 using SpotIt.IntegrationTests.Infrastructure;
 using Xunit;
 
@@ -49,7 +50,7 @@ public class UpdatePostStatusTests : IAsyncLifetime
 
         // Act — Update the status as an Employee
         var employeeId = await _factory.CreateTestUserAsync("employee@test.com", "Test123!", "CityHallEmployee");
-        var employeeClient = _factory.CreateClient().AsRole(employeeId, "employee@test.com", "CityHallEmployee");
+        var employeeClient = _factory.CreateClient().AsRole(employeeId, "employee@test.com", "CityHallEmployee", Permissions.Posts.UpdateStatus);
 
         var response = await employeeClient.PatchAsJsonAsync($"/api/posts/{postId}/status", new
         {
@@ -87,14 +88,14 @@ public class UpdatePostStatusTests : IAsyncLifetime
         var allPosts = await citizenClient.GetFromJsonAsync<SpotIt.Application.Common.PagedResult<PostDto>>("/api/posts");
         var postId = allPosts!.Items.First().Id;
 
-        // Act — Try to update status as a Citizen (should fail role check)
+        // Act — Try to update status as a Citizen (should fail permission check)
         var response = await citizenClient.PatchAsJsonAsync($"/api/posts/{postId}/status", new
         {
             NewStatus = PostStatus.InProgress,
             Note = "I fix it myself"
         });
 
-        // Assert — 403 Forbidden because Citizen != CityHallEmployee
+        // Assert — 403 Forbidden because Citizen has no posts:update_status permission
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }

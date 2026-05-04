@@ -200,7 +200,7 @@ No request body.
 ---
 
 ### PATCH /posts/{id}/status ✅
-Update the status of a post. Roles: `CityHallEmployee`, `Admin`.
+Update the status of a post. Requires permission: `posts:update_status` (seeded to `CityHallEmployee` and `Admin` by default).
 
 **Request body**
 ```json
@@ -327,9 +327,94 @@ No auth required (public endpoint).
 
 ---
 
-## Analytics (Admin only)
+## Admin — Role & Permission Management
 
-### GET /admin/analytics/by-status ✅
+All `/admin` endpoints require the `roles:manage` permission (seeded to `Admin` role by default).
+
+### GET /admin/roles ✅
+List all roles with their assigned permissions.
+
+**Response 200**
+```json
+[
+  { "name": "Admin", "claims": ["posts:update_status", "analytics:view", "users:manage", "roles:manage"] },
+  { "name": "CityHallEmployee", "claims": ["posts:update_status", "analytics:view"] },
+  { "name": "Citizen", "claims": [] }
+]
+```
+
+---
+
+### POST /admin/roles ✅
+Create a new custom role.
+
+**Request body**
+```json
+{ "name": "Moderator" }
+```
+
+**Response 200** — Role created  
+**Response 400** — Role already exists
+
+---
+
+### DELETE /admin/roles/{roleName} ✅
+Delete a role. Built-in roles (`Admin`, `CityHallEmployee`, `Citizen`) cannot be deleted.
+
+**Response 204** — Deleted  
+**Response 400** — Attempt to delete a built-in role  
+**Response 404** — Role not found
+
+---
+
+### GET /admin/roles/{roleName}/claims ✅
+List the permission values assigned to a role.
+
+**Response 200**
+```json
+["posts:update_status", "analytics:view"]
+```
+
+---
+
+### POST /admin/roles/{roleName}/claims ✅
+Assign a permission to a role. Idempotent — calling twice is safe.
+
+**Request body**
+```json
+{ "permission": "posts:update_status" }
+```
+
+**Response 200** — Assigned (or already present)  
+**Response 400** — Unknown permission string  
+**Response 404** — Role not found
+
+---
+
+### DELETE /admin/roles/{roleName}/claims/{permission} ✅
+Remove a permission from a role. Cannot remove `roles:manage` from `Admin`.
+
+**Response 204** — Removed  
+**Response 400** — Guard rule violation  
+**Response 404** — Role or claim not found
+
+---
+
+### GET /admin/permissions ✅
+List all known permission strings (auto-discovered from `Permissions` static class).
+
+**Response 200**
+```json
+["posts:update_status", "analytics:view", "users:manage", "roles:manage"]
+```
+
+---
+
+## Analytics
+
+All analytics endpoints require permission: `analytics:view` (seeded to `CityHallEmployee` and `Admin` by default).
+
+### GET /analytics/by-status ✅
 Count of posts grouped by status.
 
 **Response 200**
@@ -356,13 +441,22 @@ Top 5 categories by post count.
 
 ---
 
-## Roles
+## Roles & Permissions
 
-| Role | Registered via |
+| Role | Registered via | Default permissions |
+|---|---|---|
+| `Citizen` | Assigned on register | none |
+| `CityHallEmployee` | Assigned by Admin | `posts:update_status`, `analytics:view` |
+| `Admin` | Seeded at startup | all |
+
+Custom roles can be created by Admin via `POST /admin/roles` and assigned permissions via `POST /admin/roles/{name}/claims`.
+
+| Permission | Capability |
 |---|---|
-| `Citizen` | Assigned on register |
-| `CityHallEmployee` | Assigned by Admin |
-| `Admin` | Seeded at startup |
+| `posts:update_status` | Update the status of any post |
+| `analytics:view` | View analytics dashboards |
+| `users:manage` | Manage user accounts |
+| `roles:manage` | Create/delete roles and assign permissions |
 
 ---
 

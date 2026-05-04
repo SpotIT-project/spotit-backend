@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SpotIt.Application.Authorization;
 using SpotIt.Domain.Entities;
 
 namespace SpotIt.Infrastructure.Data.Seed;
@@ -17,6 +19,7 @@ public static class DatabaseSeeder
         await context.Database.MigrateAsync();
 
         await SeedRolesAsync(roleManager);
+        await SeedRoleClaimsAsync(roleManager);
         await SeedAdminAsync(userManager);
         await SeedCategoriesAsync(context);
     }
@@ -29,6 +32,34 @@ public static class DatabaseSeeder
         {
             if (!await roleManager.RoleExistsAsync(role))
                 await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    private static async Task SeedRoleClaimsAsync(RoleManager<IdentityRole> roleManager)
+    {
+        var rolePermissions = new Dictionary<string, IEnumerable<string>>
+        {
+            ["Admin"] = Permissions.GetAll(),
+            ["CityHallEmployee"] = [Permissions.Posts.UpdateStatus, Permissions.Analytics.View],
+            ["Citizen"] = []
+        };
+
+        foreach (var (roleName, permissions) in rolePermissions)
+        {
+            var role = await roleManager.FindByNameAsync(roleName);
+            if (role is null)
+                continue;
+
+            var existingClaims = await roleManager.GetClaimsAsync(role);
+
+            foreach (var permission in permissions)
+            {
+                var alreadyExists = existingClaims.Any(c =>
+                    c.Type == "permission" && c.Value == permission);
+
+                if (!alreadyExists)
+                    await roleManager.AddClaimAsync(role, new Claim("permission", permission));
+            }
         }
     }
 
