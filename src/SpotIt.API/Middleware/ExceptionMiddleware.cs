@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace SpotIt.API.Middleware;
 
-public class ExceptionMiddleware(RequestDelegate next)
+public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -38,8 +38,9 @@ public class ExceptionMiddleware(RequestDelegate next)
             }
             else
             {
+                logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);
                 context.Response.StatusCode = 500;
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = ex.Message, inner = ex.InnerException?.Message, inner2 = ex.InnerException?.InnerException?.Message }));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "An unexpected error occurred." }));
             }
 
 

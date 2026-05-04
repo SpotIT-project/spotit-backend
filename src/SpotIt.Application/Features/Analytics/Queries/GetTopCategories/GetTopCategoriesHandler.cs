@@ -9,16 +9,7 @@ public class GetTopCategoriesHandler(IUnitOfWork uow)
 {
     public async Task<IEnumerable<TopCategoryDto>> Handle(GetTopCategoriesQuery request, CancellationToken ct)
     {
-        var posts = await uow.Posts.GetAllAsync(ct);
-        var categories = await uow.Categories.GetAllAsync(ct);
-
-        return posts
-            .GroupBy(p => p.CategoryId)
-            .Join(categories,
-                group => group.Key,
-                cat => cat.Id,
-                (group, cat) => new TopCategoryDto { CategoryName = cat.Name, PostCount = group.Count() })
-            .OrderByDescending(x => x.PostCount)
-            .Take(5);
+        var results = await uow.Posts.GetTopCategoriesAsync(5, ct);
+        return results.Select(r => new TopCategoryDto { CategoryName = r.CategoryName, PostCount = r.PostCount });
     }
 }
