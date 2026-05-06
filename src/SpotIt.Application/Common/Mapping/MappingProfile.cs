@@ -18,5 +18,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
             .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.IsAnonymous ? null : src.AuthorId))
             .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.IsAnonymous ? null : src.Author.UserName));
+
+        CreateMap<StatusHistory, StatusHistoryDto>()
+            .ForMember(dest => dest.NewStatus, opt => opt.MapFrom(src => src.NewStatus.ToString()));
     }
 }

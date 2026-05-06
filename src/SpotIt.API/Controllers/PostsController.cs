@@ -11,6 +11,7 @@ using SpotIt.Application.Features.Likes.Commands.UnlikePost;
 using SpotIt.Application.Features.Posts.Commands.DeletePost;
 using SpotIt.Application.Features.Posts.Commands.UploadPostPhoto;
 using SpotIt.Application.Authorization;
+using SpotIt.Application.Features.Posts.Queries.GetStatusHistory;
 
 namespace SpotIt.API.Controllers;
 
@@ -80,6 +81,13 @@ public class PostsController : ControllerBase
     {
         var url = await _mediator.Send(new UploadPostPhotoCommand(id, photo));
         return Ok(new { url });
+    }
+
+    [HttpGet("{id:guid}/history")]
+    public async Task<IActionResult> GetStatusHistory(Guid id)
+    {
+        var history = await _mediator.Send(new GetStatusHistoryQuery(id));
+        return Ok(history);
     }
 }
 
