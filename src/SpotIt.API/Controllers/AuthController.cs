@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SpotIt.Application.DTOs;
 using SpotIt.Application.Interfaces;
 using SpotIt.Domain.Entities;
@@ -35,6 +36,7 @@ public class AuthController:ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register(RegisterRequestDto request)
     {
         var user = new ApplicationUser
@@ -56,6 +58,7 @@ public class AuthController:ControllerBase
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login(LoginRequestDto request)
     {
         var user= await _userManager.FindByEmailAsync(request.Email);
@@ -89,6 +92,7 @@ public class AuthController:ControllerBase
     }
 
     [HttpPost("refresh")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Refresh()
     {
         var accessToken = Request.Cookies["accessToken"];

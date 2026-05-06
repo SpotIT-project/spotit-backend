@@ -31,8 +31,8 @@ public class GetCommentsHandlerTests
         var postId = Guid.NewGuid();
         var comments = new List<Comment>
         {
-            new() { Id = Guid.NewGuid(), PostId = postId, Content = "Comment 1" },
-            new() { Id = Guid.NewGuid(), PostId = postId, Content = "Comment 2" }
+            new() { Id = Guid.NewGuid(), PostId = postId, Content = "Comment 1", CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), PostId = postId, Content = "Comment 2", CreatedAt = DateTime.UtcNow }
         };
         var dtos = new List<CommentDto>
         {
@@ -42,14 +42,17 @@ public class GetCommentsHandlerTests
 
         _uow.Comments.GetByPostIdAsync(postId, Arg.Any<CancellationToken>())
             .Returns(comments);
-        _mapper.Map<IEnumerable<CommentDto>>(comments)
+        _mapper.Map<IEnumerable<CommentDto>>(Arg.Any<List<Comment>>())
             .Returns(dtos);
 
         // Act
-        var result = await _sut.Handle(new GetCommentsQuery(postId), CancellationToken.None);
+        var result = await _sut.Handle(new GetCommentsQuery(postId, 1, 20), CancellationToken.None);
 
         // Assert
-        result.Should().HaveCount(2);
-        result.Should().BeEquivalentTo(dtos);
+        result.Items.Should().HaveCount(2);
+        result.TotalCount.Should().Be(2);
+        result.Page.Should().Be(1);
+        result.PageSize.Should().Be(20);
+        result.Items.Should().BeEquivalentTo(dtos);
     }
 }
