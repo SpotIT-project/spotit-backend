@@ -84,7 +84,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpGet("{id:guid}/history")]
-    public async Task<IActionResult> GetStatusHistory(Guid id)
+    public async Task<IActionResult> GetStatusHistory([FromRoute] Guid id)
     {
         var history = await _mediator.Send(new GetStatusHistoryQuery(id));
         return Ok(history);

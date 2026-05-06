@@ -17,6 +17,9 @@ public class GetStatusHistoryHandler(IUnitOfWork uow, IMapper mapper)
 
         var history = await uow.StatusHistory.FindAsync(h => h.PostId == request.PostId, ct);
 
+        // Repository.FindAsync calls ToListAsync internally, so the result is already
+        // materialized as a List<T>. OrderBy runs in-memory here — acceptable because
+        // status history per post is expected to be a small set (< 100 rows).
         return mapper.Map<IEnumerable<StatusHistoryDto>>(history.OrderBy(h => h.ChangedAt));
     }
 }
