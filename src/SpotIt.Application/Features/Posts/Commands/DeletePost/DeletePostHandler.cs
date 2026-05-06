@@ -14,7 +14,8 @@ public class DeletePostHandler(IUnitOfWork uow, ICurrentUserService currentUser)
         var post = await uow.Posts.GetByIdAsync(request.PostId, ct)
             ?? throw new NotFoundException(nameof(Post), request.PostId);
 
-        if (post.AuthorId != currentUser.UserId)
+        var isAdmin = currentUser.IsInRole("Admin");
+        if (post.AuthorId != currentUser.UserId && !isAdmin)
             throw new UnauthorizedAccessException("You can only delete your own posts.");
 
         uow.Posts.Remove(post);

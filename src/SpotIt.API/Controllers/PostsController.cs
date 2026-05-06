@@ -33,7 +33,7 @@ public class PostsController : ControllerBase
         var results = await _mediator.Send(query);
         return Ok(results);
     }
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetPostById([FromRoute] Guid id)
     {
         var post= await _mediator.Send(new GetPostByIdQuery(id));
@@ -44,7 +44,7 @@ public class PostsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreatePostCommand command)
     {
         var id = await _mediator.Send(command);
-        return Created();
+        return CreatedAtAction(nameof(GetPostById), new { id }, new { id });
     }
 
     [HttpPatch("{id}/status")]
