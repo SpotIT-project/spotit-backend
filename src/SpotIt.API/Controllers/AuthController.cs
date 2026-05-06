@@ -62,7 +62,7 @@ public class AuthController:ControllerBase
         if (user == null)
             return Unauthorized("Invalid credentials");
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);
         if (!result.Succeeded)
             return Unauthorized("Invalid credentials");
 
@@ -154,8 +154,23 @@ public class AuthController:ControllerBase
     }
 
     [HttpPost("logout")]
-    public IActionResult LogOut()
+    public async Task<IActionResult> LogOut()
     {
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        if (refreshToken != null)
+        {
+            var token= (await _unitOfWork.RefreshTokens
+                .FindAsync(t => t.Token == refreshToken))
+                .FirstOrDefault();
+            if (token != null)
+            {
+                token.IsRevoked = true;
+                _unitOfWork.RefreshTokens.Update(token);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
         Response.Cookies.Delete("accessToken");
         Response.Cookies.Delete("refreshToken");
         return Ok(new { message = "Logged out" });

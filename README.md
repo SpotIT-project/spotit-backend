@@ -171,26 +171,26 @@ GitHub Actions runs on every push to `Sava` and every PR to `main`. It spins up 
 Base URL: `https://localhost:7xxx/api`  
 Authentication: HttpOnly cookies (`accessToken`, `refreshToken`) — no `Authorization` header needed.
 
-| Method | Path | Description | Auth |
-|--------|------|-------------|------|
-| POST | `/auth/register` | Register a citizen account | Public |
-| POST | `/auth/login` | Login, sets HttpOnly cookies | Public |
-| POST | `/auth/refresh` | Rotate access + refresh tokens | Cookie |
-| POST | `/auth/logout` | Clear auth cookies | Cookie |
-| GET | `/auth/me` | Get current user profile | Cookie |
-| GET | `/posts` | List posts (paginated, filterable, searchable) | Cookie |
-| POST | `/posts` | Create a post | Cookie |
-| GET | `/posts/{id}` | Get a single post | Cookie |
-| DELETE | `/posts/{id}` | Delete a post (author only) | Cookie |
-| PATCH | `/posts/{id}/status` | Update post status | Employee / Admin |
-| POST | `/posts/{id}/photo` | Upload post photo (author only) | Cookie |
-| POST | `/posts/{id}/likes` | Like a post | Cookie |
-| DELETE | `/posts/{id}/likes` | Unlike a post | Cookie |
-| GET | `/posts/{id}/comments` | Get comments on a post | Cookie |
-| POST | `/posts/{id}/comments` | Add a comment | Cookie |
-| GET | `/categories` | List all categories | Public |
-| GET | `/admin/analytics/by-status` | Posts grouped by status | Admin |
-| GET | `/admin/analytics/top-categories` | Top 5 categories by post count | Admin |
+| Method | Path                              | Description                                    | Auth             |
+| ------ | --------------------------------- | ---------------------------------------------- | ---------------- |
+| POST   | `/auth/register`                  | Register a citizen account                     | Public           |
+| POST   | `/auth/login`                     | Login, sets HttpOnly cookies                   | Public           |
+| POST   | `/auth/refresh`                   | Rotate access + refresh tokens                 | Cookie           |
+| POST   | `/auth/logout`                    | Clear auth cookies                             | Cookie           |
+| GET    | `/auth/me`                        | Get current user profile                       | Cookie           |
+| GET    | `/posts`                          | List posts (paginated, filterable, searchable) | Cookie           |
+| POST   | `/posts`                          | Create a post                                  | Cookie           |
+| GET    | `/posts/{id}`                     | Get a single post                              | Cookie           |
+| DELETE | `/posts/{id}`                     | Delete a post (author only)                    | Cookie           |
+| PATCH  | `/posts/{id}/status`              | Update post status                             | Employee / Admin |
+| POST   | `/posts/{id}/photo`               | Upload post photo (author only)                | Cookie           |
+| POST   | `/posts/{id}/likes`               | Like a post                                    | Cookie           |
+| DELETE | `/posts/{id}/likes`               | Unlike a post                                  | Cookie           |
+| GET    | `/posts/{id}/comments`            | Get comments on a post                         | Cookie           |
+| POST   | `/posts/{id}/comments`            | Add a comment                                  | Cookie           |
+| GET    | `/categories`                     | List all categories                            | Public           |
+| GET    | `/admin/analytics/by-status`      | Posts grouped by status                        | Admin            |
+| GET    | `/admin/analytics/top-categories` | Top 5 categories by post count                 | Admin            |
 
 See [`docs/api-contract.md`](docs/api-contract.md) for full request/response shapes.
 
@@ -198,11 +198,11 @@ See [`docs/api-contract.md`](docs/api-contract.md) for full request/response sha
 
 ## Roles
 
-| Role | How assigned |
-|------|-------------|
-| `Citizen` | Assigned automatically on register |
-| `CityHallEmployee` | Assigned by an Admin |
-| `Admin` | Seeded at startup |
+| Role               | How assigned                       |
+| ------------------ | ---------------------------------- |
+| `Citizen`          | Assigned automatically on register |
+| `CityHallEmployee` | Assigned by an Admin               |
+| `Admin`            | Seeded at startup                  |
 
 ---
 
@@ -220,14 +220,14 @@ Every status transition is recorded in `StatusHistory` (audit trail).
 
 ## Error Responses
 
-| Status | Trigger |
-|--------|---------|
-| 400 | Validation failure |
-| 401 | Missing or expired access token |
-| 403 | Authenticated but wrong role or not the resource owner |
-| 404 | Resource not found |
-| 409 | Conflict (e.g. duplicate like) |
-| 500 | Unhandled server error |
+| Status | Trigger                                                |
+| ------ | ------------------------------------------------------ |
+| 400    | Validation failure                                     |
+| 401    | Missing or expired access token                        |
+| 403    | Authenticated but wrong role or not the resource owner |
+| 404    | Resource not found                                     |
+| 409    | Conflict (e.g. duplicate like)                         |
+| 500    | Unhandled server error                                 |
 
 ---
 
@@ -243,9 +243,7 @@ Every status transition is recorded in `StatusHistory` (audit trail).
 
 ## Project Docs
 
-| File | Contents |
-|------|----------|
-| [`docs/api-contract.md`](docs/api-contract.md) | Full API reference |
-| [`docs/diagrams.md`](docs/diagrams.md) | Architecture, class, sequence, ERD, and state-machine diagrams |
-| [`docs/knowledge-tracker.md`](docs/knowledge-tracker.md) | Learning progress tracker |
-| [`docs/concepts-review.md`](docs/concepts-review.md) | Concept reference notes |
+| File                                           | Contents                                                       |
+| ---------------------------------------------- | -------------------------------------------------------------- |
+| [`docs/api-contract.md`](docs/api-contract.md) | Full API reference                                             |
+| [`docs/diagrams.md`](docs/diagrams.md)         | Architecture, class, sequence, ERD, and state-machine diagrams |
