@@ -1,20 +1,31 @@
 using AutoMapper;
 using MediatR;
+using SpotIt.Application.Common;
 using SpotIt.Application.DTOs;
 using SpotIt.Domain.Interfaces;
 
 namespace SpotIt.Application.Features.Comments.Queries.GetComments;
 
 public class GetCommentsHandler(IUnitOfWork uow, IMapper mapper)
-    : IRequestHandler<GetCommentsQuery, IEnumerable<CommentDto>>
+    : IRequestHandler<GetCommentsQuery, PagedResult<CommentDto>>
 {
-    public async Task<IEnumerable<CommentDto>> Handle(GetCommentsQuery request, CancellationToken ct)
+    public async Task<PagedResult<CommentDto>> Handle(GetCommentsQuery request, CancellationToken ct)
     {
-        // TODO(human): fetch comments for request.PostId using uow.Comments.GetByPostIdAsync
-        // then map the result to IEnumerable<CommentDto> using mapper and return it
-        // (one line fetch, one line return)
-
         var comments = await uow.Comments.GetByPostIdAsync(request.PostId, ct);
-        return mapper.Map<IEnumerable<CommentDto>>(comments);
+
+        var totalCount = comments.Count();
+        var items = comments
+            .OrderBy(c => c.CreatedAt)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToList();
+
+        return new PagedResult<CommentDto>
+        {
+            Items = mapper.Map<IEnumerable<CommentDto>>(items),
+            TotalCount = totalCount,
+            Page = request.Page,
+            PageSize = request.PageSize
+        };
     }
 }

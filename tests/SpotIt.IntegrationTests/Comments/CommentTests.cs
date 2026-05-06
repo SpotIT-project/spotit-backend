@@ -77,10 +77,10 @@ public class CommentTests : IAsyncLifetime
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        var comments = await response.Content.ReadFromJsonAsync<IEnumerable<CommentDto>>();
-        comments.Should().HaveCount(2);
-        comments.Should().Contain(c => c.Content == "Comment 1");
-        comments.Should().Contain(c => c.Content == "Comment 2");
+        var pagedResult = await response.Content.ReadFromJsonAsync<SpotIt.Application.Common.PagedResult<CommentDto>>();
+        pagedResult!.Items.Should().HaveCount(2);
+        pagedResult.Items.Should().Contain(c => c.Content == "Comment 1");
+        pagedResult.Items.Should().Contain(c => c.Content == "Comment 2");
     }
 }
 

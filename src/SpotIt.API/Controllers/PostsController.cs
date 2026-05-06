@@ -11,6 +11,7 @@ using SpotIt.Application.Features.Likes.Commands.UnlikePost;
 using SpotIt.Application.Features.Posts.Commands.DeletePost;
 using SpotIt.Application.Features.Posts.Commands.UploadPostPhoto;
 using SpotIt.Application.Authorization;
+using SpotIt.Application.Features.Posts.Queries.GetStatusHistory;
 
 namespace SpotIt.API.Controllers;
 
@@ -32,7 +33,7 @@ public class PostsController : ControllerBase
         var results = await _mediator.Send(query);
         return Ok(results);
     }
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetPostById([FromRoute] Guid id)
     {
         var post= await _mediator.Send(new GetPostByIdQuery(id));
@@ -43,7 +44,7 @@ public class PostsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreatePostCommand command)
     {
         var id = await _mediator.Send(command);
-        return Created();
+        return CreatedAtAction(nameof(GetPostById), new { id }, new { id });
     }
 
     [HttpPatch("{id}/status")]
@@ -80,6 +81,13 @@ public class PostsController : ControllerBase
     {
         var url = await _mediator.Send(new UploadPostPhotoCommand(id, photo));
         return Ok(new { url });
+    }
+
+    [HttpGet("{id:guid}/history")]
+    public async Task<IActionResult> GetStatusHistory([FromRoute] Guid id)
+    {
+        var history = await _mediator.Send(new GetStatusHistoryQuery(id));
+        return Ok(history);
     }
 }
 

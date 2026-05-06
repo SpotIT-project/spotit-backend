@@ -92,6 +92,9 @@ public static class InfrastructureExtensions
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequireUppercase = true;
             options.User.RequireUniqueEmail = true;
+            options.Lockout.MaxFailedAccessAttempts = 3;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            options.Lockout.AllowedForNewUsers = true;
         })
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();

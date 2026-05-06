@@ -12,10 +12,13 @@ namespace SpotIt.API.Controllers;
 public class CommentsController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetComments([FromRoute] Guid postId)
+    public async Task<IActionResult> GetComments(
+        [FromRoute] Guid postId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
     {
-        var comments = await mediator.Send(new GetCommentsQuery(postId));
-        return Ok(comments);
+        var result = await mediator.Send(new GetCommentsQuery(postId, page, pageSize));
+        return Ok(result);
     }
 
     [HttpPost]

@@ -30,7 +30,9 @@ public class SpotItWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 ["Jwt:SecretKey"] = "test-secret-key-must-be-at-least-32-chars-long",
                 ["Jwt:Issuer"] = "SpotIt.API",
                 ["Jwt:Audience"] = "SpotIt.Client",
-                ["Jwt:ExpiryMinutes"] = "60"
+                ["Jwt:ExpiryMinutes"] = "60",
+                // Disable rate limiting in tests to avoid 429 responses on repeated auth calls
+                ["RateLimiting:Auth:PermitLimit"] = int.MaxValue.ToString()
             });
         });
 
