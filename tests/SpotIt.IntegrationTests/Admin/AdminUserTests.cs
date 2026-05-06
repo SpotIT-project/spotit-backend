@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using SpotIt.Application.Authorization;
+using SpotIt.Application.DTOs;
 using SpotIt.IntegrationTests.Infrastructure;
 using Xunit;
 
@@ -37,13 +38,26 @@ public class AdminUserTests : IAsyncLifetime
     [Fact]
     public async Task GetUsers_ReturnsUserList()
     {
-        var admin = AdminClient();
+        // Arrange: register a real user so we can assert it appears in the list
+        const string testEmail = "listed@test.com";
+        var anonClient = _factory.CreateClient();
+        var registerResponse = await anonClient.PostAsJsonAsync("/api/auth/register", new
+        {
+            FullName = "Listed User",
+            Email = testEmail,
+            Password = "Test123!",
+            City = "Oradea"
+        });
+        registerResponse.IsSuccessStatusCode.Should().BeTrue("registration must succeed before querying users");
 
+        // Act
+        var admin = AdminClient();
         var response = await admin.GetAsync("/api/admin/users");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var users = await response.Content.ReadFromJsonAsync<List<UserSummaryDto>>();
         users.Should().NotBeNull();
+        users!.Should().Contain(u => u.Email == testEmail, "the registered user must appear in the user list");
     }
 
     [Fact]
@@ -61,11 +75,22 @@ public class AdminUserTests : IAsyncLifetime
         var userId = await _factory.CreateTestUserAsync("newuser@test.com", "Test123!", "Citizen");
         var admin = AdminClient();
 
-        var response = await admin.PostAsJsonAsync(
+        var assignResponse = await admin.PostAsJsonAsync(
             $"/api/admin/users/{userId}/role",
             new { RoleName = "CityHallEmployee" });
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Verify the role change is reflected in the user list
+        var usersResponse = await admin.GetAsync("/api/admin/users");
+        usersResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var users = await usersResponse.Content.ReadFromJsonAsync<List<UserSummaryDto>>();
+        users.Should().NotBeNull();
+
+        var updatedUser = users!.FirstOrDefault(u => u.Id == userId);
+        updatedUser.Should().NotBeNull("the assigned user must appear in the user list");
+        updatedUser!.Role.Should().Be("CityHallEmployee");
     }
 
     [Fact]
@@ -94,5 +119,3 @@ public class AdminUserTests : IAsyncLifetime
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }
-
-file record UserSummaryDto(string Id, string Email, string FullName, string City, string Role);

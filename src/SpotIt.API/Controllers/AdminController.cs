@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SpotIt.Application.Authorization;
 using SpotIt.Application.DTOs;
 using SpotIt.Domain.Entities;
@@ -10,16 +11,17 @@ namespace SpotIt.API.Controllers;
 
 [ApiController]
 [Route("api/admin")]
-[Authorize(Policy = Permissions.Roles.Manage)]
+[Authorize]
 public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager) : ControllerBase
 {
     private static readonly string[] BuiltInRoles = ["Admin", "CityHallEmployee", "Citizen"];
 
     [HttpGet("roles")]
+    [Authorize(Policy = Permissions.Roles.Manage)]
     public async Task<IActionResult> GetRoles()
     {
         var result = new List<RoleDto>();
-        foreach (var role in roleManager.Roles.ToList())
+        foreach (var role in await roleManager.Roles.ToListAsync())
         {
             var claims = await roleManager.GetClaimsAsync(role);
             result.Add(new RoleDto(role.Name!, claims.Select(c => c.Value).ToList()));
@@ -28,6 +30,7 @@ public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<
     }
 
     [HttpPost("roles")]
+    [Authorize(Policy = Permissions.Roles.Manage)]
     public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest request)
     {
         var result = await roleManager.CreateAsync(new IdentityRole(request.Name));
@@ -37,6 +40,7 @@ public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<
     }
 
     [HttpDelete("roles/{roleName}")]
+    [Authorize(Policy = Permissions.Roles.Manage)]
     public async Task<IActionResult> DeleteRole([FromRoute] string roleName)
     {
         if (BuiltInRoles.Contains(roleName))
@@ -50,6 +54,7 @@ public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<
     }
 
     [HttpGet("roles/{roleName}/claims")]
+    [Authorize(Policy = Permissions.Roles.Manage)]
     public async Task<IActionResult> GetRoleClaims([FromRoute] string roleName)
     {
         var role = await roleManager.FindByNameAsync(roleName);
@@ -60,6 +65,7 @@ public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<
     }
 
     [HttpPost("roles/{roleName}/claims")]
+    [Authorize(Policy = Permissions.Roles.Manage)]
     public async Task<IActionResult> AddClaimToRole(
         [FromRoute] string roleName,
         [FromBody]  AddClaimRequest request)
@@ -79,6 +85,7 @@ public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<
     }
 
     [HttpDelete("roles/{roleName}/claims/{permission}")]
+    [Authorize(Policy = Permissions.Roles.Manage)]
     public async Task<IActionResult> RemoveClaimFromRole(
         [FromRoute] string roleName,
         [FromRoute] string permission)
@@ -98,13 +105,17 @@ public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<
     }
 
     [HttpGet("permissions")]
+    [Authorize(Policy = Permissions.Roles.Manage)]
     public IActionResult GetPermissions() => Ok(Permissions.GetAll());
 
     [HttpGet("users")]
     [Authorize(Policy = Permissions.Users.Manage)]
     public async Task<IActionResult> GetUsers()
     {
-        var users = userManager.Users.ToList();
+        // TODO: N+1 — GetRolesAsync issues one DB query per user.
+        // A proper fix requires injecting AppDbContext to JOIN AspNetUsers with AspNetUserRoles
+        // in a single query. Acceptable at current scale; revisit when user count grows.
+        var users = await userManager.Users.ToListAsync();
         var result = new List<UserSummaryDto>();
         foreach (var user in users)
         {
