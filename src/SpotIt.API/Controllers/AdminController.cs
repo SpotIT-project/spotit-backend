@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpotIt.Application.Authorization;
+using SpotIt.Application.DTOs;
+using SpotIt.Domain.Entities;
 using System.Security.Claims;
 
 namespace SpotIt.API.Controllers;
@@ -9,7 +11,7 @@ namespace SpotIt.API.Controllers;
 [ApiController]
 [Route("api/admin")]
 [Authorize(Policy = Permissions.Roles.Manage)]
-public class AdminController(RoleManager<IdentityRole> roleManager) : ControllerBase
+public class AdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager) : ControllerBase
 {
     private static readonly string[] BuiltInRoles = ["Admin", "CityHallEmployee", "Citizen"];
 
@@ -97,8 +99,42 @@ public class AdminController(RoleManager<IdentityRole> roleManager) : Controller
 
     [HttpGet("permissions")]
     public IActionResult GetPermissions() => Ok(Permissions.GetAll());
+
+    [HttpGet("users")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = userManager.Users.ToList();
+        var result = new List<UserSummaryDto>();
+        foreach (var user in users)
+        {
+            var roles = await userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? string.Empty;
+            result.Add(new UserSummaryDto(user.Id, user.Email!, user.FullName, user.City, role));
+        }
+        return Ok(result);
+    }
+
+    [HttpPost("users/{userId}/role")]
+    [Authorize(Policy = Permissions.Users.Manage)]
+    public async Task<IActionResult> AssignRole([FromRoute] string userId, [FromBody] AssignRoleRequest request)
+    {
+        if (!BuiltInRoles.Contains(request.RoleName))
+            return BadRequest($"Invalid role '{request.RoleName}'. Must be one of: {string.Join(", ", BuiltInRoles)}.");
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+            return NotFound($"User '{userId}' not found.");
+
+        var currentRoles = await userManager.GetRolesAsync(user);
+        await userManager.RemoveFromRolesAsync(user, currentRoles);
+        await userManager.AddToRoleAsync(user, request.RoleName);
+
+        return Ok(new { message = $"User '{user.Email}' has been assigned the role '{request.RoleName}'." });
+    }
 }
 
 public record RoleDto(string Name, List<string> Claims);
 public record CreateRoleRequest(string Name);
 public record AddClaimRequest(string Permission);
+public record AssignRoleRequest(string RoleName);
