@@ -28,8 +28,8 @@ public class SearchPostsTests : IAsyncLifetime
 
         await client.PostAsJsonAsync("/api/posts", new
         {
-            Title = "Pothole on Main Street",
-            Description = "There is a big pothole near the market.",
+            Title = "UniqueZebra2024 title",
+            Description = "There is a big crack near the market.",
             CategoryId = categoryId,
             IsAnonymous = false
         });
@@ -42,12 +42,12 @@ public class SearchPostsTests : IAsyncLifetime
             IsAnonymous = false
         });
 
-        var response = await client.GetAsync("/api/posts?page=1&pageSize=10&search=pothole");
+        var response = await client.GetAsync("/api/posts?page=1&pageSize=10&search=UniqueZebra2024");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<PagedResult<PostDto>>();
         result!.Items.Should().HaveCount(1);
-        result.Items.First().Title.Should().Be("Pothole on Main Street");
+        result.Items.First().Title.Should().Be("UniqueZebra2024 title");
     }
 
     [Fact]
@@ -62,12 +62,12 @@ public class SearchPostsTests : IAsyncLifetime
         await client.PostAsJsonAsync("/api/posts", new
         {
             Title = "Road issue",
-            Description = "Dangerous pothole near the school.",
+            Description = "UniqueAlpha9876 crack near the schoolyard.",
             CategoryId = categoryId,
             IsAnonymous = false
         });
 
-        var response = await client.GetAsync("/api/posts?page=1&pageSize=10&search=dangerous");
+        var response = await client.GetAsync("/api/posts?page=1&pageSize=10&search=UniqueAlpha9876");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<PagedResult<PostDto>>();

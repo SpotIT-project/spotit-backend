@@ -21,9 +21,15 @@ public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure (this IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException(
+                "Connection string 'DefaultConnection' is not configured. " +
+                "Set it in appsettings.Development.json for local dev or via environment variables for Docker.");
+
         services.AddSingleton<NpgsqlDataSource>(sp =>
         {
-            var dataSourceBuilder = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("DefaultConnection"));
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
             return dataSourceBuilder.Build();
         });
 

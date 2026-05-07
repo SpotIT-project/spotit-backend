@@ -105,9 +105,9 @@ dotnet user-secrets set "Jwt:SecretKey" "your-secret-key-at-least-32-characters-
 dotnet run --project src/SpotIt.API
 ```
 
-The API starts at `https://localhost:7xxx`. Swagger UI is available at `/swagger`.
+The API starts at `https://localhost:7xxx`. Scalar API UI is available at `/scalar/v1`.
 
-> Migrations and seed data (roles, categories) are applied automatically on startup.
+> Migrations and seed data (roles, categories, test accounts, mock posts) are applied automatically on startup.
 
 ---
 
@@ -189,10 +189,40 @@ Authentication: HttpOnly cookies (`accessToken`, `refreshToken`) — no `Authori
 | GET    | `/posts/{id}/comments`            | Get comments on a post                         | Cookie           |
 | POST   | `/posts/{id}/comments`            | Add a comment                                  | Cookie           |
 | GET    | `/categories`                     | List all categories                            | Public           |
-| GET    | `/admin/analytics/by-status`      | Posts grouped by status                        | Admin            |
-| GET    | `/admin/analytics/top-categories` | Top 5 categories by post count                 | Admin            |
+| GET    | `/posts/{id}/history`             | Status change audit trail for a post           | Cookie           |
+| GET    | `/analytics/by-status`            | Posts grouped by status                        | Employee / Admin |
+| GET    | `/analytics/top-categories`       | Top 5 categories by post count                 | Employee / Admin |
 
 See [`docs/api-contract.md`](docs/api-contract.md) for full request/response shapes.
+
+---
+
+## Test Accounts & Seed Data
+
+On first startup the seeder creates one test account per role and a set of realistic mock posts.
+
+### Accounts
+
+| Role               | Email                  | Password       |
+| ------------------ | ---------------------- | -------------- |
+| Admin              | admin@spotit.ro        | `Admin@1234`   |
+| CityHallEmployee   | employee@spotit.ro     | `Employee@1234`|
+| Citizen            | citizen@spotit.ro      | `Citizen@1234` |
+
+### Mock Posts
+
+| Title | Category | Status |
+| --- | --- | --- |
+| Large pothole on Republicii Street | Roads | InProgress |
+| Broken street light near Central Park | Lighting | Resolved |
+| Illegal trash dumping in Brătianu Park | Waste | Pending |
+| Water pipe burst on Independenței Ave | Water | UnderReview |
+| Park benches completely destroyed | Parks | Rejected |
+| Missing road signs at roundabout | Roads | Pending |
+
+Each post with a non-Pending status has a full **status history trail** and **official responses** from the employee account. The resolved post has citizen confirmation replies. Several posts have likes.
+
+> All seed data is idempotent — re-running the app never duplicates it.
 
 ---
 

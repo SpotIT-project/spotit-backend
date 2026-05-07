@@ -87,5 +87,24 @@ public class LikeTests : IAsyncLifetime
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
+
+    [Fact]
+    public async Task UnlikePost_WhenNotLiked_Returns404()
+    {
+        var userId = await _factory.CreateTestUserAsync("liker@test.com", "Test123!", "Citizen");
+        var client = _factory.CreateClient().AsRole(userId, "liker@test.com", "Citizen");
+
+        var categories = await client.GetFromJsonAsync<IEnumerable<CategoryDto>>("/api/categories");
+        var categoryId = categories!.First().Id;
+
+        await client.PostAsJsonAsync("/api/posts", new { Title = "Post", Description = "Desc", CategoryId = categoryId, IsAnonymous = false });
+        var allPosts = await client.GetFromJsonAsync<SpotIt.Application.Common.PagedResult<PostDto>>("/api/posts");
+        var postId = allPosts!.Items.First().Id;
+
+        // Delete a like that was never created
+        var response = await client.DeleteAsync($"/api/posts/{postId}/likes");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }
 

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.RateLimiting;
+using Scalar.AspNetCore;
 using SpotIt.API.Middleware;
 using SpotIt.API.Services;
 using SpotIt.Application.Extensions;
@@ -5,7 +7,6 @@ using SpotIt.Application.Interfaces;
 using SpotIt.Infrastructure.Data.Seed;
 using SpotIt.Infrastructure.Extensions;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 
 if (Directory.Exists("/run/secrets"))
@@ -19,8 +20,7 @@ if (Directory.Exists("/run/secrets"))
 
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
@@ -64,8 +64,8 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseMiddleware<ExceptionMiddleware>();

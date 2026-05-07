@@ -268,42 +268,68 @@ No request body.
 ## Comments
 
 ### GET /posts/{id}/comments ✅
-Get comments for a post, ordered by date ascending.
+Get comments for a post, paginated, ordered by date ascending.
+
+**Query params**: `page` (default 1), `pageSize` (default 20)
 
 **Response 200**
 ```json
-[
-  {
-    "id": "3fa85f64-...",
-    "content": "This needs to be fixed urgently.",
-    "authorName": "Ion Popescu",
-    "isOfficial": false,
-    "createdAt": "2026-04-21T11:00:00Z"
-  }
-]
+{
+  "items": [
+    {
+      "id": "3fa85f64-...",
+      "content": "This needs to be fixed urgently.",
+      "authorName": "Ion Popescu",
+      "isOfficialResponse": false,
+      "createdAt": "2026-04-21T11:00:00Z"
+    }
+  ],
+  "totalCount": 5,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}
 ```
 
-> Official comments (from city hall) have `isOfficial: true` and are visually distinguished in the UI.
+> Official comments (from city hall) have `isOfficialResponse: true` and are visually distinguished in the UI.
 
 ---
 
 ### POST /posts/{id}/comments ✅
-Add a comment. Roles: any authenticated user. Set `isOfficial: true` only for Employees/Admins.
+Add a comment. Any authenticated user can comment. `isOfficialResponse` is set automatically server-side based on role (`CityHallEmployee` or `Admin` → `true`).
 
 **Request body**
 ```json
 {
-  "content": "We have logged this issue.",
-  "isOfficial": true
+  "content": "We have logged this issue."
 }
 ```
 
 **Validation rules**
 - `content`: required, max 2000 chars
-- `isOfficial`: ignored if caller is `Citizen`
 
 **Response 201** — Empty body  
 **Response 400** — Validation error
+
+---
+
+### GET /posts/{id}/history ✅
+Get the full status change audit trail for a post, ordered by date ascending.
+
+**Response 200**
+```json
+[
+  {
+    "id": 1,
+    "newStatus": "UnderReview",
+    "note": "Assigned to inspection team.",
+    "changedByUserId": "user-guid",
+    "changedAt": "2026-04-22T09:00:00Z"
+  }
+]
+```
+
+**Response 404** — Post not found
 
 ---
 
@@ -317,11 +343,8 @@ No auth required (public endpoint).
 **Response 200**
 ```json
 [
-  { "id": 1, "name": "Infrastructure" },
-  { "id": 2, "name": "Public Transport" },
-  { "id": 3, "name": "Parks & Recreation" },
-  { "id": 4, "name": "Safety" },
-  { "id": 5, "name": "Environment" }
+  { "id": 1, "name": "Roads",    "description": "Potholes, damaged roads, missing signs", "iconUrl": "🛣️" },
+  { "id": 2, "name": "Lighting", "description": "Street lights, public area lighting",    "iconUrl": "💡" }
 ]
 ```
 
@@ -428,7 +451,7 @@ Count of posts grouped by status.
 
 ---
 
-### GET /admin/analytics/top-categories ✅
+### GET /analytics/top-categories ✅
 Top 5 categories by post count.
 
 **Response 200**

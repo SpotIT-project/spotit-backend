@@ -77,9 +77,9 @@ public class PostsController : ControllerBase
 
     [HttpPost("{id}/photo")]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UploadPhoto([FromRoute] Guid id, [FromForm] IFormFile photo)
+    public async Task<IActionResult> UploadPhoto([FromRoute] Guid id, [FromForm] UploadPhotoRequest request)
     {
-        var url = await _mediator.Send(new UploadPostPhotoCommand(id, photo));
+        var url = await _mediator.Send(new UploadPostPhotoCommand(id, request.Photo));
         return Ok(new { url });
     }
 
@@ -92,3 +92,4 @@ public class PostsController : ControllerBase
 }
 
 public record UpdateStatusBody(PostStatus NewStatus, string? Note);
+public record UploadPhotoRequest(IFormFile Photo);
