@@ -39,4 +39,6 @@ jobs:
         run: dotnet test tests/SpotIt.UnitTests --no-build --configuration Release
 
       - name: Integration tests
+        env:
+          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5433;Database=spotit_test;Username=postgres;Password=postgres"
         run: dotnet test tests/SpotIt.IntegrationTests --no-build --configuration Release
