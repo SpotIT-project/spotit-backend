@@ -70,5 +70,5 @@ public class AnalyticsTests : IAsyncLifetime
 }
 
 // DTOs returned by the analytics endpoints — file-scoped so they don't leak.
-file record PostsByStatusDto(string Status, int Count);
+file record PostsByStatusDto(int Status, int Count);
 file record TopCategoryDto(string CategoryName, int PostCount);
