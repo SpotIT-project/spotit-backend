@@ -28,6 +28,9 @@ Thumbs.db
 ## Git worktrees
 .worktrees/
 
+## Uploaded files (generated at runtime / test runs)
+**/wwwroot/uploads/
+
 ## Learning files — personal, not part of the codebase
 knowledge-tracker.md
 docs/concepts-review.md

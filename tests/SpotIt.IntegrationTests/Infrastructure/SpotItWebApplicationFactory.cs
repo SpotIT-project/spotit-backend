@@ -16,7 +16,7 @@ namespace SpotIt.IntegrationTests.Infrastructure;
 public class SpotItWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private const string ConnectionString =
-        "Host=localhost;Port=5432;Database=spotit_test;Username=postgres;Password=postgres";
+        "Host=localhost;Port=5433;Database=spotit_test;Username=postgres;Password=postgres";
 
     private Respawner _respawner = default!;
 
@@ -31,18 +31,33 @@ public class SpotItWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 ["Jwt:Issuer"] = "SpotIt.API",
                 ["Jwt:Audience"] = "SpotIt.Client",
                 ["Jwt:ExpiryMinutes"] = "60",
-                // Disable rate limiting in tests to avoid 429 responses on repeated auth calls
                 ["RateLimiting:Auth:PermitLimit"] = int.MaxValue.ToString()
             });
         });
 
+        builder.ConfigureServices(services =>
+        {
+            // Replace the NpgsqlDataSource singleton so all EF Core + Identity operations
+            // target the test database regardless of what appsettings.Development.json says.
+            var existing = services.SingleOrDefault(d => d.ServiceType == typeof(NpgsqlDataSource));
+            if (existing != null) services.Remove(existing);
+            services.AddSingleton(_ => new NpgsqlDataSourceBuilder(ConnectionString).Build());
+        });
+    }
+
+    private static AppDbContext CreateDbContext()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseNpgsql(ConnectionString)
+            .UseSnakeCaseNamingConvention()
+            .Options;
+        return new AppDbContext(options);
     }
 
     public async Task InitializeAsync()
     {
-        using var scope = Services.CreateScope();
-        // Services.CreateScope() starts the host, which runs DatabaseSeeder.SeedAsync.
-        // SeedAsync resolves AppDbContext → NpgsqlDataSource → triggers our singleton factory above.
+        await using var db = CreateDbContext();
+        await db.Database.MigrateAsync();
 
         await using var conn = new NpgsqlConnection(ConnectionString);
         await conn.OpenAsync();
@@ -89,8 +104,7 @@ public class SpotItWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     public new async Task DisposeAsync()
     {
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await using var db = CreateDbContext();
         await db.Database.EnsureDeletedAsync();
         await base.DisposeAsync();
     }

@@ -82,5 +82,21 @@ public class CommentTests : IAsyncLifetime
         pagedResult.Items.Should().Contain(c => c.Content == "Comment 1");
         pagedResult.Items.Should().Contain(c => c.Content == "Comment 2");
     }
+
+    [Fact]
+    public async Task AddComment_Unauthenticated_Returns401()
+    {
+        var client = _factory.CreateClient();
+        var response = await client.PostAsJsonAsync($"/api/posts/{Guid.NewGuid()}/comments", new { Content = "test" });
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetComments_Unauthenticated_Returns401()
+    {
+        var client = _factory.CreateClient();
+        var response = await client.GetAsync($"/api/posts/{Guid.NewGuid()}/comments");
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
 
