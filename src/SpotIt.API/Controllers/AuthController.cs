@@ -198,10 +198,13 @@ public class AuthController:ControllerBase
 
     private void SetTokenCookies(string accessToken, string refreshToken)
     {
+        var isProduction = HttpContext.RequestServices
+            .GetRequiredService<IWebHostEnvironment>().IsProduction();
+
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = isProduction,   // false in dev (HTTP localhost), true in prod (HTTPS)
             SameSite = SameSiteMode.Strict,
             Expires = DateTime.UtcNow.AddDays(7)
         };
